@@ -1,18 +1,18 @@
 SelectFiles {
 
 	*new {
-		arg input, selectExtensions = ['wav','aif','aiff'], numChannels = [1,2], recursive = true;
+		arg input, selectExtensions = ['wav','aif','aiff'], numChannels = [1,2], recursive = true, verbose = false;
 		if(input.isKindOf(String),{
 			// a string was passed
 			var pn = PathName(input);
 			if(pn.isFile,{
-				^this.cleanAndStrip([pn],selectExtensions,numChannels);
+				^this.cleanAndStrip([pn],selectExtensions,numChannels,verbose);
 			},{
 				// it's not a file
 				if(pn.isFolder,{
 					// it is a folder
 					var list = this.consumeFolder(pn,recursive);
-					^this.cleanAndStrip(list,selectExtensions,numChannels);
+					^this.cleanAndStrip(list,selectExtensions,numChannels,verbose);
 				},{
 					// it's not a file or a folder;
 					"GetMeFiles: thing passed is neither file or folder...".warn;
@@ -38,7 +38,7 @@ SelectFiles {
 						});
 					});
 				});
-				^this.cleanAndStrip(list,selectExtensions,numChannels);
+				^this.cleanAndStrip(list,selectExtensions,numChannels,verbose);
 			},{
 				"GetMeFiles: thing passed is neither string nor array...".warn;
 			});
@@ -46,8 +46,8 @@ SelectFiles {
 	}
 
 	*cleanAndStrip {
-		arg pns, selectExt,numChannels;
-		var returns = this.selectExt(pns,selectExt,numChannels);
+		arg pns, selectExt,numChannels, verbose = false;
+		var returns = this.selectExt(pns,selectExt,numChannels,verbose);
 		^this.stripPathNames(returns);
 	}
 
@@ -66,12 +66,13 @@ SelectFiles {
 	}
 
 	*selectExt {
-		arg pns, exts,numChannels;
+		arg pns, exts,numChannels, verbose = false;
 		if(exts.notNil,{
 			^pns.select({
 				arg pn;
 				var ext = pn.extension;
 				var nChan = SoundFile.use(pn.fullPath,{arg sf; sf.numChannels});
+				if(verbose,{"---Checking: %".format(pn.fullPath).postln;});
 				exts.includes(ext.asSymbol).and(numChannels.includes(nChan));
 			});
 		},{
