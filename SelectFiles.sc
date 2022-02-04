@@ -1,7 +1,12 @@
 SelectFiles {
 
 	*new {
-		arg input, selectExtensions = ['wav','aif','aiff'], numChannels = [1,2], recursive = true, verbose = false;
+		arg input, selectExtensions, numChannels, recursive = true, verbose = false;
+
+		selectExtensions = selectExtensions ? ['wav','aif','aiff'];
+
+		numChannels = numChannels ? [1,2];
+
 		if(input.isKindOf(String),{
 			// a string was passed
 			var pn = PathName(input);
@@ -15,7 +20,7 @@ SelectFiles {
 					^this.cleanAndStrip(list,selectExtensions,numChannels,verbose);
 				},{
 					// it's not a file or a folder;
-					"GetMeFiles: thing passed is neither file or folder...".warn;
+					"% thing passed is neither file or folder...".format(thisMethod).warn;
 				});
 			});
 		},{
@@ -34,13 +39,13 @@ SelectFiles {
 							// it is a folder
 							list.addAll(this.consumeFolder(pn,recursive));
 						},{
-							"GetMeFiles: item in input array is neither a folder nor a file...".warn;
+							"% item in input array is neither a folder nor a file...".format(thisMethod).warn;
 						});
 					});
 				});
 				^this.cleanAndStrip(list,selectExtensions,numChannels,verbose);
 			},{
-				"GetMeFiles: thing passed is neither string nor array...".warn;
+				"% thing passed is neither string nor array...".format(thisMethod).warn;
 			});
 		});
 	}
